@@ -1,6 +1,8 @@
 require 'eventmachine'
+require 'logger'
 
 START_YEAR, START_MONTH, START_DAY, START_HOUR = ARGV
+LOGGER = Logger.new STDOUT
 
 class SDTD < EventMachine::Connection
   LOG_REGEX = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}) (\d+\.\d+) (\w+) (.*)$/
@@ -14,6 +16,10 @@ class SDTD < EventMachine::Connection
     EventMachine.add_periodic_timer(10) {
       check_time
     }
+  end
+
+  def post_init
+    LOGGER.info "Connected to server!"
   end
 
   def receive_data data 
@@ -41,11 +47,12 @@ class SDTD < EventMachine::Connection
   end
 
   def handle_time days, hours, minutes
-    wanted_day = ((Time.now.to_i - @started) / (86400 * 7)) + 1
+    LOGGER.info "Day check."
 
-    unless days == wanted_day
-      send_data "settime #{wanted_day} #{hours} #{minutes}\n\r"
-    end
+    wanted_day = ((Time.now.to_i - @started) / (86400)) + 1
+    wanted_day = 1 if wanted_day < 1
+
+    send_data "settime #{wanted_day} #{hours} #{minutes}\n\r" unless days == wanted_day
   end
 end
 
