@@ -8,7 +8,7 @@ A script to manage the day number on a 7 days to die server to sync it to the re
 * `git clone https://github.com/melair/7dtd-man.git`
 * `cd 7dtd-man`
 * `gem install bundler`
-* `bundler install`
+* `bundle install`
 
 # Run
 
